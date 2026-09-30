@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="style.css" />
+    <title>About QuickNotes</title>
+  </head>
+  <body>
+    <header>
+      <h1>QuickNotes</h1>
+      <p>Capture ideas before they disappear.</p>
+      <nav aria-label="Main navigation">
+        <a href="index.html">Home</a>
+        <a href="about.html">About</a>
+      </nav>
+    </header>
+
+    <main>
+      <h2>About QuickNotes</h2>
+      <p>QuickNotes is a simple place to capture, review, and remember your ideas.</p>
+
+      <section>
+        <h3>How to use QuickNotes</h3>
+        <ol type="a">
+          <li>Open the QuickNotes home page.</li>
+          <li>Type an idea into the new note field.</li>
+          <li>Select Add Note to save it to your notes list.</li>
+        </ol>
+      </section>
+
+      <section>
+        <h3>Features</h3>
+        <ul>
+          <li>Quick note capture</li>
+          <li>Easy-to-scan notes list</li>
+          <li>Simple keyboard-friendly controls</li>
+        </ul>
+      </section>
+
+      <section>
+        <h3>Keyboard shortcuts</h3>
+        <table>
+          <caption>QuickNotes keyboard shortcuts</caption>
+          <thead>
+            <tr>
+              <th scope="col">Shortcut</th>
+              <th scope="col">Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Tab</td>
+              <td>Move to the next control</td>
+            </tr>
+            <tr>
+              <td>Enter</td>
+              <td>Submit a note when the form is focused</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section>
+        <h3>Send feedback</h3>
+        <form id="feedback-form">
+          <p>
+            <label for="feedback-name">Name</label>
+            <input type="text" id="feedback-name" name="name" required />
+          </p>
+          <p>
+            <label for="feedback-email">Email</label>
+            <input type="email" id="feedback-email" name="email" required />
+          </p>
+          <p>
+            <label for="feedback-message">Message</label>
+            <textarea id="feedback-message" name="message" required></textarea>
+          </p>
+          <button type="submit">Send Feedback</button>
+        </form>
+      </section>
+    </main>
+
+    <footer>
+      <p>&copy; 2026 QuickNotes. Built during Web Foundations.</p>
+    </footer>
+  </body>
+</html>
