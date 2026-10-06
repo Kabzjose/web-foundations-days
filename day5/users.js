@@ -11,7 +11,6 @@ function renderUsers(list) {
 	usersList.replaceChildren();
 
 	if (list.length === 0) {
-		status.textContent = "No users match your filter.";
 		return;
 	}
 
@@ -32,6 +31,23 @@ function renderUsers(list) {
 	});
 }
 
+function renderFilteredUsers() {
+	const filterText = filterInput.value.trim().toLowerCase();
+	const filteredUsers = users.filter((user) =>
+		user.name.toLowerCase().includes(filterText)
+	);
+
+	renderUsers(filteredUsers);
+
+	if (filteredUsers.length === 0) {
+		status.textContent = "No users match your filter.";
+	} else if (filterText) {
+		status.textContent = `Showing ${filteredUsers.length} user${filteredUsers.length === 1 ? "" : "s"}.`;
+	} else {
+		status.textContent = `Loaded ${filteredUsers.length} users.`;
+	}
+}
+
 async function loadUsers() {
 	status.textContent = "Loading users...";
 	loadButton.disabled = true;
@@ -44,8 +60,7 @@ async function loadUsers() {
 		}
 
 		users = await response.json();
-		renderUsers(users);
-		status.textContent = `Loaded ${users.length} users.`;
+		renderFilteredUsers();
 	} catch (error) {
 		status.textContent = "Could not load users. Please try again.";
 		console.error(error);
@@ -56,14 +71,4 @@ async function loadUsers() {
 
 loadButton.addEventListener("click", loadUsers);
 
-filterInput.addEventListener("input", () => {
-	const filterText = filterInput.value.trim().toLowerCase();
-	const filteredUsers = users.filter((user) =>
-		user.name.toLowerCase().includes(filterText)
-	);
-
-	renderUsers(filteredUsers);
-	if (filteredUsers.length > 0) {
-		status.textContent = `Showing ${filteredUsers.length} user${filteredUsers.length === 1 ? "" : "s"}.`;
-	}
-});
+filterInput.addEventListener("input", renderFilteredUsers);
