@@ -90,6 +90,8 @@ Users ---- HTTPS -----------------> +-----v------+
                              +--------------------+
 ```
 
+## 6. Component explanations
+
 - **CDN:** Serves frequently viewed photo files from edge locations, reducing
   bandwidth and latency at the application and object-storage layers.
 - **Load balancer:** Distributes requests across healthy app servers and
@@ -112,7 +114,7 @@ Users ---- HTTPS -----------------> +-----v------+
 - **Thumbnail worker:** Consumes queued jobs, creates 50 KB thumbnails, and
   writes them back to object storage while updating photo metadata.
 
-## Photo upload flow
+## 7. Photo upload flow
 
 1. The client sends an upload request to an app server, which authenticates the
    user and validates the file type, size, and upload permissions.
@@ -132,7 +134,7 @@ Users ---- HTTPS -----------------> +-----v------+
 7. Feed reads initially use a placeholder or the original's processing state;
    once the thumbnail is ready, the CDN can cache and serve the thumbnail URL.
 
-## Trade-offs
+## 8. Trade-offs
 
 - **Direct-to-object-storage uploads vs. proxying through app servers:** Direct
   uploads preserve app-server capacity and reduce bandwidth costs, but signed
