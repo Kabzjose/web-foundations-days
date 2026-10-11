@@ -10,6 +10,7 @@
   throughout the day.
 - A photo is 2 MB and its thumbnail is 50 KB. These estimates use decimal
   megabytes and exclude extra copies for database replication, backups, and
+  
   storage-provider metadata.
 
 Calculation: 10 million registered users x 10% active = **1 million daily
