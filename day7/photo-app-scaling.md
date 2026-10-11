@@ -124,28 +124,35 @@ Users ---- HTTPS -----------------> +-----v------+
 3. The client uploads the 2 MB original directly to object storage using that
    URL.
 4. After the upload succeeds, the client notifies the app server (or the
-   storage event notifies it), and the app server records the photo metadata
-   and original object key in the primary database.
-5. The app server publishes a thumbnail job containing the photo ID and object
-   key to the queue, then returns an accepted/uploaded response to the client.
-6. A thumbnail worker consumes the job, reads the original, creates the 50 KB
-   thumbnail, stores it in object storage, and marks the thumbnail as ready in
-   the database.
-7. Feed reads initially use a placeholder or the original's processing state;
-   once the thumbnail is ready, the CDN can cache and serve the thumbnail URL.
+   storage event notifies it), and the app server verifies the object exists.
+5. The app server records the photo metadata and original object key in the
+   primary database with a `thumbnail_status` such as `pending`.
+6. The app server publishes a durable thumbnail job containing the photo ID and
+   original object key to the queue, then returns an accepted/uploaded response
+   to the client. If queue publishing fails, the database record remains
+   pending so a repair job can enqueue it again.
+7. A thumbnail worker consumes the job, reads the original from object storage,
+   creates the 50 KB thumbnail, stores it back in object storage, and updates
+   the database with the thumbnail object key and a `ready` status.
+8. Worker processing should be idempotent: retrying the same job should
+   overwrite the same thumbnail key or safely detect that the thumbnail already
+   exists. Failed jobs are retried with backoff and eventually moved to a
+   dead-letter queue for investigation.
+9. Feed reads can show a placeholder or processing state while the thumbnail is
+   pending. Once the thumbnail is ready, reads use the thumbnail URL and the
+   CDN can cache the file close to users.
 
 ## 8. Trade-offs
 
-- **Direct-to-object-storage uploads vs. proxying through app servers:** Direct
-  uploads preserve app-server capacity and reduce bandwidth costs, but signed
-  URL creation and storage-event handling add workflow complexity.
-- **Asynchronous thumbnails vs. synchronous processing:** A queue makes upload
-  latency predictable and lets workers scale independently, but thumbnails are
-  temporarily unavailable and the system needs retries and dead-letter
-  handling for failed jobs.
-- **Read replica and cache vs. strongly consistent reads:** Replicas and cached
-  feeds provide much higher read throughput, but replication lag or stale cache
-  entries can briefly delay the appearance of a new photo or follow.
-- **Object storage vs. database blobs:** Object storage is better suited to
-  hundreds of terabytes of media and supports CDN integration, but it requires
-  separate metadata, access-control, and lifecycle-management logic.
+- **Asynchronous thumbnails vs. synchronous processing:** Queue-based thumbnail
+  generation keeps uploads fast because the client does not wait for image
+  processing, and workers can scale independently during traffic spikes. The
+  cost is eventual consistency: a newly uploaded photo may appear with a
+  placeholder until processing finishes, and the system must include retries,
+  idempotent workers, and a dead-letter queue for failed jobs.
+- **Read replicas and caching vs. strongly consistent reads:** Replicas, cache,
+  and CDN delivery match the fifty-to-one read-heavy workload and protect the
+  primary database from feed traffic. The trade-off is that cache entries or
+  replica lag can briefly show stale feeds, so the product should tolerate a
+  short delay before a new photo appears everywhere or use targeted cache
+  invalidation for important updates.
